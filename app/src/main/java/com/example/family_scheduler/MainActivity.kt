@@ -1,6 +1,8 @@
 package com.example.family_scheduler
 
+import android.content.Intent
 import android.os.Bundle
+import android.widget.CalendarView
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -15,6 +17,17 @@ class MainActivity : AppCompatActivity() {
             val systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
+        }
+
+        val calendarView: CalendarView = findViewById(R.id.calendarView)
+        calendarView.setOnDateChangeListener { view, year, month, dayOfMonth ->
+            val selectedDate = java.util.Calendar.getInstance().apply {
+                set(year, month, dayOfMonth)
+            }.timeInMillis
+
+            val intent = Intent(this, ScheduleActivity::class.java)
+            intent.putExtra("SELECTED_DATE", selectedDate)
+            startActivity(intent)
         }
     }
 }

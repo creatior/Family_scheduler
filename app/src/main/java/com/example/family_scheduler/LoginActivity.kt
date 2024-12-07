@@ -28,13 +28,6 @@ class LoginActivity : AppCompatActivity() {
             val intent = Intent(this, RegistrationActivity::class.java)
             startActivity(intent)
         }
-        val select: String
-        try {
-            select = API.selectAll(this)
-        } catch (e: Exception)
-        {
-            Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
-        }
         val loginEditText : EditText = findViewById(R.id.login)
         val passwordEditText : EditText = findViewById(R.id.password)
 
@@ -43,7 +36,11 @@ class LoginActivity : AppCompatActivity() {
         loginButton.setOnClickListener{
             val login = loginEditText.text.toString()
             val password = passwordEditText.text.toString()
-            API.login(this, login, password)
+            if (API.login(this, login, password))
+            {
+                val intent = Intent(this, MainActivity::class.java)
+                startActivity(intent)
+            }
         }
     }
 }

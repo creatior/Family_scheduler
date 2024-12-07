@@ -27,7 +27,6 @@ class ScheduleActivity : AppCompatActivity() {
         val noteEditText: EditText = findViewById(R.id.noteEditText)
         val saveButton: Button = findViewById(R.id.saveButton)
 
-        // Форматирование даты
         val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         val formattedDate = dateFormat.format(selectedDate)
 
@@ -35,7 +34,7 @@ class ScheduleActivity : AppCompatActivity() {
 
         saveButton.setOnClickListener {
             val note = noteEditText.text.toString()
-            // Сохраните заметку в базе данных или другом хранилище
+            // TODO: save note
             Toast.makeText(this, "Note saved: $note", Toast.LENGTH_SHORT).show()
         }
     }
