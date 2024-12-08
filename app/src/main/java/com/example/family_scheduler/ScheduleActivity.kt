@@ -1,18 +1,32 @@
 package com.example.family_scheduler
 
+import android.content.SharedPreferences
 import android.os.Bundle
 import android.widget.Button
 import android.widget.EditText
 import android.widget.TextView
+import android.widget.TimePicker
 import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import kotlinx.coroutines.selects.select
+import java.sql.Time
+import java.text.Format
 import java.text.SimpleDateFormat
+import java.time.Instant
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
 import java.util.Locale
 
 class ScheduleActivity : AppCompatActivity() {
+    private lateinit var sharedPreferences: SharedPreferences
+    private val API = ApiService()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
@@ -22,6 +36,10 @@ class ScheduleActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+
+        sharedPreferences = getSharedPreferences("user_prefs", MODE_PRIVATE)
+        val userId = sharedPreferences.getString("user_id", null)
+
         val selectedDate = intent.getLongExtra("SELECTED_DATE", 0)
         val dateTextView: TextView = findViewById(R.id.dateTextView)
         val noteEditText: EditText = findViewById(R.id.noteEditText)
@@ -34,8 +52,31 @@ class ScheduleActivity : AppCompatActivity() {
 
         saveButton.setOnClickListener {
             val note = noteEditText.text.toString()
-            // TODO: save note
-            Toast.makeText(this, "Note saved: $note", Toast.LENGTH_SHORT).show()
+            val startTimePicker: TimePicker = findViewById(R.id.startTimePicker)
+            val endTimePicker: TimePicker = findViewById(R.id.endTimePicker)
+
+            val startTime = FormatDate(selectedDate, startTimePicker)
+            val endTime = FormatDate(selectedDate, endTimePicker)
+
+            val isAdded = API.AddNote(this, startTime, endTime, userId!!.toInt(), note)
+            if (isAdded) {
+                Toast.makeText(this, "Note saved: $note", Toast.LENGTH_SHORT).show()
+            }
         }
+    }
+
+    private fun FormatDate(selectedDate: Long, timePicker: TimePicker):String{
+        val instant = Instant.ofEpochMilli(selectedDate)
+        val zoneId = ZoneId.systemDefault()
+        val selectedLocalDate = instant.atZone(zoneId).toLocalDate()
+
+        val hour = timePicker.hour
+        val minute = timePicker.minute
+
+        val time = LocalTime.of(hour, minute)
+
+        val dateTime = LocalDateTime.of(selectedLocalDate, time)
+        val formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+        return dateTime.format(formatter)
     }
 }

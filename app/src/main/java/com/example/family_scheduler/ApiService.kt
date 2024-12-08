@@ -27,22 +27,51 @@ class ApiService {
         return result
     }
 
-    fun login(context: Context, login: String, password: String): Boolean
+    fun login(context: Context, login: String, password: String): Int
+    {
+        var id = -1
+        try {
+            db = DBHelper(context, null)
+            val user = db.getUser(login, password)
+            if (user == null) {
+                Toast.makeText(db.context, "Invalid username/email or password", Toast.LENGTH_LONG).show()
+            }
+            else {
+                id = user.id
+            }
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            db.close()
+        }
+        return id
+    }
+
+    fun AddNote(context: Context, startTime: String, endTime: String, user_id: Int, note: String) : Boolean
     {
         var result = false
         try {
             db = DBHelper(context, null)
-            val is_registered = db.getUser(login, password)
-            if (!is_registered) {
-                Toast.makeText(db.context, "Invalid username/email or password", Toast.LENGTH_LONG).show()
-                result = false
-            }
-            else {
-                result = true
-            }
+            db.addNote(Note(startTime, endTime, user_id, note))
+            result = true
         } catch (e: Exception) {
             e.printStackTrace()
             result = false
+        } finally {
+            db.close()
+        }
+        return result
+    }
+
+    fun getNotes(context: Context, selectedDate: Long, userId: Int) : List<Note>
+    {
+        var result: List<Note> = emptyList()
+        try {
+            db = DBHelper(context, null)
+            result = db.getNotesByDate(selectedDate, userId)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            result = emptyList()
         } finally {
             db.close()
         }

@@ -3,6 +3,7 @@ package com.example.family_scheduler
 import android.content.Intent
 import android.os.Bundle
 import android.widget.CalendarView
+import android.widget.Toast
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
@@ -24,10 +25,14 @@ class MainActivity : AppCompatActivity() {
             val selectedDate = java.util.Calendar.getInstance().apply {
                 set(year, month, dayOfMonth)
             }.timeInMillis
-
-            val intent = Intent(this, ScheduleActivity::class.java)
-            intent.putExtra("SELECTED_DATE", selectedDate)
-            startActivity(intent)
+            try {
+                val intent = Intent(this, ScheduleViewActivity::class.java)
+                intent.putExtra("SELECTED_DATE", selectedDate)
+                startActivity(intent)
+            } catch(e: Exception)
+            {
+                Toast.makeText(this, e.message, Toast.LENGTH_LONG).show()
+            }
         }
     }
 }
