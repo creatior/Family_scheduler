@@ -48,19 +48,36 @@ class ScheduleActivity : AppCompatActivity() {
         val dateFormat = SimpleDateFormat("dd MMMM yyyy", Locale.getDefault())
         val formattedDate = dateFormat.format(selectedDate)
 
+        val startTimePicker: TimePicker = findViewById(R.id.startTimePicker)
+        val endTimePicker: TimePicker = findViewById(R.id.endTimePicker)
+
+        startTimePicker.setIs24HourView(true)
+        endTimePicker.setIs24HourView(true)
+
+        startTimePicker.setOnTimeChangedListener { view, hourOfDay, minute ->
+            view.minute = 0 // Устанавливаем минуты на 0 при изменении времени
+        }
+
+        endTimePicker.setOnTimeChangedListener { view, hourOfDay, minute ->
+            view.minute = 0 // Устанавливаем минуты на 0 при изменении времени
+        }
+
         dateTextView.text = formattedDate
 
         saveButton.setOnClickListener {
-            val note = noteEditText.text.toString()
-            val startTimePicker: TimePicker = findViewById(R.id.startTimePicker)
-            val endTimePicker: TimePicker = findViewById(R.id.endTimePicker)
+            if (startTimePicker.hour >= endTimePicker.hour) {
+                Toast.makeText(this, "End time must be greater than start time", Toast.LENGTH_SHORT).show()
+            }
+            else {
+                val note = noteEditText.text.toString()
 
-            val startTime = FormatDate(selectedDate, startTimePicker)
-            val endTime = FormatDate(selectedDate, endTimePicker)
+                val startTime = FormatDate(selectedDate, startTimePicker)
+                val endTime = FormatDate(selectedDate, endTimePicker)
 
-            val isAdded = API.AddNote(this, startTime, endTime, userId!!.toInt(), note)
-            if (isAdded) {
-                Toast.makeText(this, "Note saved: $note", Toast.LENGTH_SHORT).show()
+                val isAdded = API.AddNote(this, startTime, endTime, userId!!.toInt(), note)
+                if (isAdded) {
+                    Toast.makeText(this, "Note saved: $note", Toast.LENGTH_SHORT).show()
+                }
             }
         }
     }

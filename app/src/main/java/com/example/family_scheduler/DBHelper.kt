@@ -5,6 +5,7 @@ import android.content.Context
 import android.database.Cursor
 import android.database.sqlite.SQLiteDatabase
 import android.database.sqlite.SQLiteOpenHelper
+import com.example.family_scheduler.Family
 import com.example.family_scheduler.Note
 import com.example.family_scheduler.User
 import java.text.SimpleDateFormat
@@ -19,7 +20,9 @@ class DBHelper(val context: Context, val factory: SQLiteDatabase.CursorFactory?)
                 "name TEXT NOT NULL," +
                 "email TEXT NOT NULL," +
                 "username TEXT NOT NULL," +
-                "password TEXT NOT NULL)"
+                "password TEXT NOT NULL," +
+                "family_id INTEGER," +
+                "FOREIGN KEY(family_id) REFERENCES family(id))"
         db!!.execSQL(query1)
         val query2 = "CREATE TABLE note (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT," +
@@ -29,6 +32,10 @@ class DBHelper(val context: Context, val factory: SQLiteDatabase.CursorFactory?)
                 "note TEXT NOT NULL," +
                 "FOREIGN KEY(user_id) REFERENCES users(id))"
         db.execSQL(query2)
+        val query3 = "CREATE TABLE family (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT," +
+                "name TEXT NOT NULL)"
+        db.execSQL(query3)
     }
 
     override fun onUpgrade(db: SQLiteDatabase?, oldVersion: Int, newVersion: Int) {
@@ -58,6 +65,27 @@ class DBHelper(val context: Context, val factory: SQLiteDatabase.CursorFactory?)
         val result = db.rawQuery(
             "SELECT * FROM users WHERE (username = ? OR email = ?) AND password = ?",
             arrayOf(login, login, password)
+        )
+
+        return if (result.moveToFirst()) {
+            val id = result.getInt(result.getColumnIndexOrThrow("id"))
+            val surname = result.getString(result.getColumnIndexOrThrow("surname"))
+            val name = result.getString(result.getColumnIndexOrThrow("name"))
+            val email = result.getString(result.getColumnIndexOrThrow("email"))
+            val username = result.getString(result.getColumnIndexOrThrow("username"))
+            val password = result.getString(result.getColumnIndexOrThrow("password"))
+
+            User(surname, name, email, username, password, id)
+        } else {
+            null
+        }
+    }
+
+    fun getUserByID(user_id: String): User? {
+        val db = this.writableDatabase
+        val result = db.rawQuery(
+            "SELECT * FROM users WHERE id = ?",
+            arrayOf(user_id)
         )
 
         return if (result.moveToFirst()) {
@@ -119,5 +147,26 @@ class DBHelper(val context: Context, val factory: SQLiteDatabase.CursorFactory?)
         }
         db.close()
         return notes
+    }
+
+    fun addFamily(family: Family, userId: Int) {
+        TODO()
+    }
+
+    fun getUserFamily(userId: Int): Family{
+        val db = this.writableDatabase
+        val result = db.rawQuery(
+            "SELECT * FROM users WHERE user_id = ? AND family_id != null",
+            arrayOf(userId.toString())
+        )
+
+        return if (result.moveToFirst()) {
+            val id = result.getInt(result.getColumnIndexOrThrow("id"))
+            val name = result.getString(result.getColumnIndexOrThrow("name"))
+
+            Family(name, id)
+        } else {
+            Family("", -1)
+        }
     }
 }

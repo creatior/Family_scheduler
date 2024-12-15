@@ -6,5 +6,6 @@ class User (
     val email: String,
     val username: String,
     val password: String,
-    val id: Int = -1
+    val id: Int = -1,
+    val family_id: Int = -1
 )

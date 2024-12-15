@@ -77,4 +77,49 @@ class ApiService {
         }
         return result
     }
+
+//    fun createGroup(context: Context, name: String) : Boolean
+//    {
+//        var result = false
+//        try {
+//            db = DBHelper(context, null)
+//            db.addFamily(Family(name))
+//            result = true
+//        } catch (e: Exception) {
+//            e.printStackTrace()
+//            result = false
+//        } finally {
+//            db.close()
+//        }
+//        return result
+//    }
+
+    fun checkFamily(context: Context, userId: Int): Boolean{
+        var result = false
+        try {
+            db = DBHelper(context, null)
+            val family: Family = db.getUserFamily(userId)
+            result = true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            result = false
+        } finally {
+            db.close()
+        }
+        return result
+    }
+
+    fun getUserNameByID(context: Context, user_id: Int): String
+    {
+        try {
+            db = DBHelper(context, null)
+            val user: User? = db.getUserByID(user_id.toString())
+            return user!!.name
+        } catch (e: Exception) {
+            e.printStackTrace()
+        } finally {
+            db.close()
+        }
+        return ""
+    }
 }
